@@ -65,5 +65,15 @@ contract CustomNFTTest is Test {
         );
     }
 
-
+    /**
+     * Check if the nft can't be minted if it's not owner
+     */
+    function testMintWhenNotOwner() public
+    {
+        address recipient = makeAddr("Bob");
+        address randompeople = makeAddr("Alice");
+        nft.mint(recipient, "bonjour");
+        vm.expectRevert("Token already minted");
+        nft.mint(randompeople, "bonjour");
+    }
 }
