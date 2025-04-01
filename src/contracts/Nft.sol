@@ -16,7 +16,7 @@ contract NFTContract is ERC721Enumerable  {
     constructor() ERC721("BABELES", "BBL") {
     }
 
-    function mint(address to,string memory name) external {
+    function mint(address to,string memory name) external {//TODO transfo to mintTo
        // Check if the token hanb'nt already minted 
       uint256 tokenId = getTokenId(name);  // Get the next token ID
       require(_ownerOf(tokenId) == address(0), "Token already minted");

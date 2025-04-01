@@ -3,86 +3,101 @@ pragma solidity ^0.8.13;
 
 import {Offer} from "./struct/Offer.sol";
 import {NFTContract} from "./Nft.sol";
-
-contract MarketPlace {
+contract MarketPlace{
     
+    address private owner; //The owner of the contract
+    
+    mapping(address => uint256[]) public userNFTs;
+    NFTContract public NFT;//The nft that will be added
 
-    NFTContract private nftContract; // Declare an instance of NFTContract to manipulate
-
-    //Vendeur XX =>  id nft => Offer info
-    mapping(address => mapping(uint256 => Offer)) public list;
-   //mapping(address => Offer) public list;
-   //List that contains the list off all nft selled by vendor
-   mapping(address => uint256[]) private listNftByVendor;
-
-    event OfferCreated(address indexed vendor, uint256 indexed nftId, uint256 amount, uint256 timestamp);
-
-    event OfferUpdated(address indexed vendor, uint256 indexed nftId, uint256 amount, uint256 timestamp);
-
-    //Check if the nft owner is the sender
-    modifier check(uint256 id_nft) 
+    uint public constant FEE = 5 ether; // 0.05 POL
+    uint256 public constant REFUND_AMOUNT = 2 ; // 0.025 POL
+    
+    event NFTAdded(address indexed user, uint256 nftId);
+    event NFTRemoved(address indexed user, string  nftId);
+    event FEEPayed(address indexed user,uint remaingBalance);
+    
+    constructor(NFTContract nft)
     {
-        //FIXME
-        require(nftContract.ownerOf(id_nft) == msg.sender, "Not the NFT owner");
+        NFT = nft;
+        owner = address(owner);
+    }
+
+
+    modifier requiresFee() {
+        require(msg.value >= FEE, "Insufficient funds to cover the fee");
         _;
     }
 
-    modifier offer_exists(uint256 id_offer)
+    modifier OwnNFT()
     {
-        
+                require(getUserNFTs(msg.sender).length==0,"This address doesn't contains any registered nft");
+_;
+    }
+
+    //Check if the sender has the nft 
+    modifier requiresOwner(string memory nftId) 
+    {
+
         _;
     }
-    
-    function addOffer(uint256 amount, uint256 id_nft) public check(id_nft)
-    {
-        require(list[msg.sender][id_nft].amount == 0, "Offer already exists");
 
-        // block.timestamp
-        list[msg.sender][id_nft] = Offer(amount, msg.sender,id_nft);
-        listNftByVendor[msg.sender].push(id_nft);
-        emit OfferCreated(msg.sender, id_nft, amount, block.timestamp);
+    /**
+     * Pay a fee for adding a nft to the list 
+     * @param nftSongTitle : Hashed title song nft
+     */
+    function addNFT(string memory nftSongTitle) external payable requiresFee() {
+
+        NFT.mint(msg.sender,nftSongTitle);
+
+        uint256 excess = msg.value - FEE;
+        uint256 id= NFT.getTokenId(nftSongTitle);//FIXME should be the nft.id 
+        userNFTs[msg.sender].push(id);
+
+        require(userNFTs[msg.sender].length !=0,"push not work wtf");
+
+        if (excess > 0) {
+            payable(msg.sender).transfer(excess);
+            emit FEEPayed(msg.sender,excess);
+        }
+        emit NFTAdded(msg.sender,id);       
     }
 
 
-    function modifyOffer(uint256 amount, uint256 id_nft) public check(id_nft)
-    {
-        //TODO Check the offer exist and owner of the nft is the msg.sender
- 
-        list[msg.sender][id_nft] = Offer(amount, msg.sender,id_nft);
 
-        emit OfferUpdated(msg.sender, id_nft, amount, block.timestamp);
-
-    }
-
-    function deleteOffer(uint256 id_nft) public check(id_nft)
-    {
-        //Check offer existe déjà & owner du nft
-        delete list[msg.sender][id_nft];
-    }
-
-    function acceptOffer() public 
-    {
-        //Appel de la fonction nft acceptoffer
-    }
-
-   // function retrieveOffer(string memory titleSong) public returns (Offer memory)
-   // {
-   //     uint256 titleHashed = nftContract.getTokenId(titleSong);
-
-   //     return list[]
-   // }
-
-    function retrieveFirstOfferFromVendor(address vendor) public view returns(Offer memory)
-    {
-        require(listNftByVendor[vendor].length > 0, "No offers available from this vendor");
+    /**
+     * Remove 
+     * @param nftId : Hashed title of the nft
+     */
+    function removeNFT(string memory nftId,address senderAdd) external OwnNFT  {
+        uint256[] storage nfts = userNFTs[senderAdd];
         
-        // Get the first hashtitle (first element in the user's offer list)
-        uint256 firstHashtitle = listNftByVendor[vendor][0];
+        bool found = false;
         
-        // Return the first offer based on the first hashtitle
-        return list[vendor][firstHashtitle];
+    for (uint256 i = 0; i < nfts.length; i++) {
+        if (nfts[i] == NFT.getTokenId(nftId)) {
+            // Swap with last element to maintain array integrity
+            nfts[i] = nfts[nfts.length - 1]; 
+            nfts.pop(); // Remove last element
+            found = true;
+            break;
+        }
+    }
+        
+        require(found, "NFT not found");
+        emit NFTRemoved(msg.sender, nftId);
+    }
+    
+    function getMyNFTs() external view returns (uint256[] memory) {
+        return userNFTs[msg.sender];
     }
 
+        // Retrieve user's NFTs
+    function getUserNFTs(address user) public view returns (uint256[] memory) {
+        return userNFTs[user];
+    }
     
-    //TODO add tests this week
+    receive() external payable {}
+
+    
 }
