@@ -86,7 +86,7 @@ contract MarketTest is Test {
         vm.deal(bob, 5 ether);
         market.addNFT{value: 5 ether}("chanson");
         vm.prank(bob);
-        market.removeNFT("chanson", bob);
+        market.removeNFT("chanson");
         uint256 resultBalance = bob.balance;
 
         assertEq(
@@ -109,7 +109,7 @@ contract MarketTest is Test {
         vm.prank(bob);
         vm.deal(bob, 5 ether);
         vm.expectRevert("NFT not found");
-        market.removeNFT("Chanson", bob);
+        market.removeNFT("Chanson");
 
         uint256 resultBalance = bob.balance;
 
