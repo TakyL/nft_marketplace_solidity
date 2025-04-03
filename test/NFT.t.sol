@@ -12,11 +12,11 @@ contract CustomNFTTest is Test {
     }
 
     /**
-     * Check if the owner of the token minted is correct
+     * @dev Check if the owner of the token minted is correct
      */
     function testNFTOwnerof() public {
         address recipient = address(0x123);
-        nft.mint(recipient, "bonjour");
+        nft.mintTo(recipient, "bonjour");
 
         uint256 tokenId = nft.getTokenId("bonjour");
         assertEq(
@@ -27,23 +27,23 @@ contract CustomNFTTest is Test {
 
     }
     /**
-     * Check if the same nft cannot be minted multiples times
+     *@dev Check if the same nft cannot be minted multiples times
      */
     function testAlreadyOwned() public {
         address recipient = address(0x123);
-        nft.mint(recipient, "bonjour");
+        nft.mintTo(recipient, "bonjour");
         vm.expectRevert("Token already minted");
-        nft.mint(recipient, "bonjour");
+        nft.mintTo(recipient, "bonjour");
     }
 
     /**
-     * Check if an owner can owns multiples nft
+     *@dev Check if an owner can owns multiples nft
      */
     function testNFTOwnerofmultiples() public {
         address recipient = address(0x123);
-        nft.mint(recipient, "bonjour");
-        nft.mint(recipient, "bonjour2");
-        nft.mint(recipient, "bonjour3");
+        nft.mintTo(recipient, "bonjour");
+        nft.mintTo(recipient, "bonjour2");
+        nft.mintTo(recipient, "bonjour3");
         uint256 tokenId = nft.getTokenId("bonjour");
         uint256 tokenId2 = nft.getTokenId("bonjour2");
         uint256 tokenId3 = nft.getTokenId("bonjour3");
@@ -66,14 +66,14 @@ contract CustomNFTTest is Test {
     }
 
     /**
-     * Check if the nft can't be minted if it's not owner
+     * @dev Check if the nft can't be minted if it's not owner
      */
     function testMintWhenNotOwner() public
     {
         address recipient = makeAddr("Bob");
         address randompeople = makeAddr("Alice");
-        nft.mint(recipient, "bonjour");
+        nft.mintTo(recipient, "bonjour");
         vm.expectRevert("Token already minted");
-        nft.mint(randompeople, "bonjour");
+        nft.mintTo(randompeople, "bonjour");
     }
 }
