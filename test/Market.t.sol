@@ -67,8 +67,9 @@ contract MarketTest is Test {
         market.addNFT{value: 8 ether}("chanson");
         uint256 resultBalance = bob.balance;
         assertEq(resultBalance, 3 ether, "Balance should be 3 ether, refund 3");
+        vm.prank(bob);
         assertEq(
-            market.getUserNFTs(bob).length,
+            market.getMyNFTs().length,
             1,
             "The list of NFTs that the address should have is 1"
         );
@@ -84,6 +85,7 @@ contract MarketTest is Test {
         vm.prank(bob);
         vm.deal(bob, 5 ether);
         market.addNFT{value: 5 ether}("chanson");
+        vm.prank(bob);
         market.removeNFT("chanson", bob);
         uint256 resultBalance = bob.balance;
 
@@ -93,7 +95,7 @@ contract MarketTest is Test {
             "Balance should be 0 ether because no refound"
         );
         assertEq(
-            market.getUserNFTs(bob).length,
+            market.getMyNFTs().length,
             0,
             "The list of NFTs that the address should have is 0"
         );
@@ -112,8 +114,9 @@ contract MarketTest is Test {
         uint256 resultBalance = bob.balance;
 
         assertEq(resultBalance, 5 ether, "Balance should be the same");
+        vm.prank(bob);
         assertEq(
-            market.getUserNFTs(bob).length,
+            market.getMyNFTs().length,
             0,
             "The list of NFTs that the address should have is 0"
         );

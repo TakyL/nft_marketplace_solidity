@@ -34,7 +34,7 @@ contract MarketPlace {
      */
     modifier OwnNFT() {
         require(
-            getUserNFTs(msg.sender).length == 0,
+            this.getMyNFTs().length == 0,
             "This address doesn't contains any registered nft"
         );
         _;
@@ -65,10 +65,9 @@ contract MarketPlace {
     /**
      * @dev Remove the nft 
      * @param nftId : Hashed title of the nft
-     * @param sender : The msg.sender's value
      */
-    function removeNFT(string memory nftId, address sender) external OwnNFT {
-        uint256[] storage nfts = userNFTs[sender];
+    function removeNFT(string memory nftId) external OwnNFT {
+        uint256[] storage nfts = userNFTs[msg.sender];
 
         bool found = false;
 
@@ -85,21 +84,13 @@ contract MarketPlace {
         emit NFTRemoved(msg.sender, nftId);
     }
     /**
-     * @dev 
-     * @notice 
+     * @dev Retrieve user's NFTs
+     * @return list of hashed id 
      */
     function getMyNFTs() external view returns (uint256[] memory) {
         return userNFTs[msg.sender];
     }
 
-    /**
-     * @dev Retrieve user's NFTs
-     * @param user : address to retrieve 
-     * @return list of hashed id 
-     */ 
-    function getUserNFTs(address user) public view returns (uint256[] memory) {
-        return userNFTs[user];
-    }
 
     receive() external payable {}
 }
