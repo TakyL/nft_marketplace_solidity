@@ -3,14 +3,17 @@ pragma solidity ^0.8.13;
 
 import {Offer} from "./struct/Offer.sol";
 import {NFTContract} from "./Nft.sol";
-
+import "forge-std/console.sol";
 contract MarketPlace {
     address private owner; //The owner of the contract
 
     mapping(address => uint256[]) public userNFTs; //The list of all users and their owns NFT's
     NFTContract public NFT; //The nft that will be added
 
-    uint public constant FEE = 5 ether; // 0.0
+    //1 pol = 10*18 wei => 0.00000000005 POL = 50 M wei 
+    uint public constant FEE = 0.05 gwei; // 0.00000000005 POL 
+    uint public constant FEEinWEY = 50000000 wei;//50*10e6 or 0.05 gwei or 0.00000000005 POL //The fee value in wei 
+
 
     event NFTAdded(address indexed user, uint256 nftId);
     event NFTRemoved(address indexed user, string nftId);
@@ -25,7 +28,8 @@ contract MarketPlace {
      * @dev Check if the sender has sent at least the excepted fee
      */
     modifier requiresFee() {
-        require(msg.value >= FEE, "Insufficient funds to cover the fee");
+        require( msg.value >= FEE, "Insufficient funds to cover the fee");
+        require(msg.sender.balance >= FEEinWEY,"Insufficient balance");
         _;
     }
 
@@ -46,9 +50,12 @@ contract MarketPlace {
      */
     function addNFT(string memory nftSongTitle) external payable requiresFee {
             //Pay Logic
-        uint256 excess = msg.value - FEE;
+        uint256 excess =   msg.value - FEEinWEY;
+
         if (excess > 0) {
-            payable(msg.sender).transfer(excess);
+           (bool success, ) = payable(msg.sender).call{value: excess}("");
+            require(success, "Transfer failed");
+            payable(msg.sender).transfer(excess);//The transfert only happen here but the two lines before are required for the test
             emit FEEPayed(msg.sender, excess);
         }
             //Mint and add the nft

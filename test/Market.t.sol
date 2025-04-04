@@ -28,15 +28,14 @@ contract MarketTest is Test {
     function testAddNFT() public {
         address bob = address(0x1564646485);
         vm.prank(bob);
-        vm.deal(bob, 5 ether);
-
-        market.addNFT{value: 5 ether}("chanson");
+        vm.deal(bob, 1 gwei);//1 POL = 10^-9 gwei = 1*10^-18 wei
+        market.addNFT{value: 0.05 gwei }("chanson");
         uint256 resultBalance = bob.balance;
 
         assertEq(
             resultBalance,
-            0 ether,
-            "Balance should be reduced by 5 ether"
+            950000000  ,
+            "Balance should be reduced by 0.05gwei so 9500000000 wei so 0.0000000095 POL"
         );
         vm.prank(bob);
         assertEq(
@@ -47,14 +46,14 @@ contract MarketTest is Test {
     }
 
     /**
-     * @dev Check if the sender's can't add a NFT if the balance is incorrect
+     * @dev Check if the sender's can't add a NFT if the sender's send value is incorrect
      */
     function testInsuffiantAmount() public {
         address bob = address(0x1564646485);
         vm.prank(bob);
-        vm.deal(bob, 5 ether);
+        vm.deal(bob, 5 gwei);
         vm.expectRevert("Insufficient funds to cover the fee");
-        market.addNFT{value: 4 ether}("chanson");
+        market.addNFT{value: 0.04 gwei}("chanson");
     }
     /**
      * @dev Check if the sender's balanced has been refound if he sent more token than needed
@@ -62,11 +61,11 @@ contract MarketTest is Test {
     function testRefoundIfExcess() public {
         address bob = address(0x1564646485);
         vm.prank(bob);
-        vm.deal(bob, 8 ether);
-
-        market.addNFT{value: 8 ether}("chanson");
+        vm.deal(bob, 1 gwei );
+        
+        market.addNFT{value: 0.08 gwei }("chanson");
         uint256 resultBalance = bob.balance;
-        assertEq(resultBalance, 3 ether, "Balance should be 3 ether, refund 3");
+        assertEq(resultBalance, 980000000, "Balance should be by  0.3 gwei ");
         vm.prank(bob);
         assertEq(
             market.getMyNFTs().length,
@@ -83,16 +82,16 @@ contract MarketTest is Test {
     function testRemoveNFT() public {
         address bob = address(0x1564646485);
         vm.prank(bob);
-        vm.deal(bob, 5 ether);
-        market.addNFT{value: 5 ether}("chanson");
+        vm.deal(bob, 1 gwei);
+        market.addNFT{value: 0.05 gwei}("chanson");
         vm.prank(bob);
         market.removeNFT("chanson");
         uint256 resultBalance = bob.balance;
 
         assertEq(
             resultBalance,
-            0 ether,
-            "Balance should be 0 ether because no refound"
+            950000000,
+            "Balance should be 0.95 gwei because no refound"
         );
         assertEq(
             market.getMyNFTs().length,
