@@ -26,9 +26,16 @@ contract MarketTest is Test {
      * - The sender has a nft in the market's list
      */
     function testAddNFT() public {
+            //Set address and give money 
         address bob = address(0x1564646485);
         vm.prank(bob);
         vm.deal(bob, 1 gwei);//1 POL = 10^-9 gwei = 1*10^-18 wei
+
+            //Check emit
+        vm.expectEmit();
+        emit MarketPlace.NFTAdded(bob,"chanson"); 
+
+            //Add bob a nft
         market.addNFT{value: 0.05 gwei }("chanson");
         uint256 resultBalance = bob.balance;
 
@@ -58,11 +65,16 @@ contract MarketTest is Test {
     /**
      * @dev Check if the sender's balanced has been refound if he sent more token than needed
      */
-    function testRefoundIfExcess() public {
+    function testRefundIfExcess() public {
+            //Set Address and money
         address bob = address(0x1564646485);
         vm.prank(bob);
         vm.deal(bob, 1 gwei );
-        
+
+            //Check the emit if the refund has been sent (0.3 gwei)
+        vm.expectEmit();
+        emit MarketPlace.FEERefund(bob,30000000); 
+            //Add a NFT to bob
         market.addNFT{value: 0.08 gwei }("chanson");
         uint256 resultBalance = bob.balance;
         assertEq(resultBalance, 980000000, "Balance should be by  0.3 gwei ");
@@ -80,12 +92,18 @@ contract MarketTest is Test {
      * - The balance should be 0 (if initial is 5)
      */
     function testRemoveNFT() public {
+            //Set Address and money
         address bob = address(0x1564646485);
         vm.prank(bob);
         vm.deal(bob, 1 gwei);
+            //Add bob a NFT
         market.addNFT{value: 0.05 gwei}("chanson");
         vm.prank(bob);
+            //Check if the emit has been fired
+        vm.expectEmit();
+        emit MarketPlace.NFTRemoved(bob,"chanson"); 
         market.removeNFT("chanson");
+
         uint256 resultBalance = bob.balance;
 
         assertEq(
@@ -106,13 +124,13 @@ contract MarketTest is Test {
     function testRemoveNonExistantNFT() public {
         address bob = address(0x1564646485);
         vm.prank(bob);
-        vm.deal(bob, 5 ether);
+        vm.deal(bob, 5 gwei);
         vm.expectRevert("NFT not found");
         market.removeNFT("Chanson");
 
         uint256 resultBalance = bob.balance;
 
-        assertEq(resultBalance, 5 ether, "Balance should be the same");
+        assertEq(resultBalance, 5000000000, "Balance should be the same, so 5 gwei");
         vm.prank(bob);
         assertEq(
             market.getMyNFTs().length,

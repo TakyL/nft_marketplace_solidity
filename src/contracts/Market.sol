@@ -3,7 +3,6 @@ pragma solidity ^0.8.13;
 
 import {Offer} from "./struct/Offer.sol";
 import {NFTContract} from "./Nft.sol";
-import "forge-std/console.sol";
 contract MarketPlace {
     address private owner; //The owner of the contract
 
@@ -15,9 +14,9 @@ contract MarketPlace {
     uint public constant FEEinWEY = 50000000 wei;//50*10e6 or 0.05 gwei or 0.00000000005 POL //The fee value in wei 
 
 
-    event NFTAdded(address indexed user, uint256 nftId);
+    event NFTAdded(address indexed user, string nftId);
     event NFTRemoved(address indexed user, string nftId);
-    event FEEPayed(address indexed user, uint remaingBalance);
+    event FEERefund(address indexed user, uint remaingBalance);
 
     constructor(NFTContract nft) {
         NFT = nft;
@@ -56,7 +55,7 @@ contract MarketPlace {
            (bool success, ) = payable(msg.sender).call{value: excess}("");
             require(success, "Transfer failed");
             payable(msg.sender).transfer(excess);//The transfert only happen here but the two lines before are required for the test
-            emit FEEPayed(msg.sender, excess);
+            emit FEERefund(msg.sender, excess);
         }
             //Mint and add the nft
         NFT.mintTo(msg.sender, nftSongTitle);
@@ -66,7 +65,7 @@ contract MarketPlace {
 
         require(userNFTs[msg.sender].length != 0, "Error when pushing the NFT");
 
-        emit NFTAdded(msg.sender, id);
+        emit NFTAdded(msg.sender, nftSongTitle);
     }
 
     /**
