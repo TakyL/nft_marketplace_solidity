@@ -11,7 +11,8 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 contract NFTContract is ERC721Enumerable  {
 
     //Hash value of title song
-    uint256 private hashTitleSong;
+    uint256 public hashTitleSong;
+    string  public value;
 
     constructor() ERC721("BABELES", "BBL") {
     }
@@ -25,6 +26,7 @@ contract NFTContract is ERC721Enumerable  {
       uint256 tokenId = getTokenId(name);  
       require(_ownerOf(tokenId) == address(0), "Token already minted");
       _mint(to,tokenId);  
+      value=name;
     }
 
     /**

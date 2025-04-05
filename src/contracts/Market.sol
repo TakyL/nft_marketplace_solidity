@@ -6,7 +6,7 @@ import {NFTContract} from "./Nft.sol";
 contract MarketPlace {
     address private owner; //The owner of the contract
 
-    mapping(address => uint256[]) public userNFTs; //The list of all users and their owns NFT's
+    mapping(address => string[]) public userNFTs; //The list of all users and their owns NFT's
     NFTContract public NFT; //The nft that will be added
 
     //1 pol = 10*18 wei => 0.00000000005 POL = 50 M wei 
@@ -60,8 +60,7 @@ contract MarketPlace {
             //Mint and add the nft
         NFT.mintTo(msg.sender, nftSongTitle);
 
-        uint256 id = NFT.getTokenId(nftSongTitle);
-        userNFTs[msg.sender].push(id);
+        userNFTs[msg.sender].push(nftSongTitle);
 
         require(userNFTs[msg.sender].length != 0, "Error when pushing the NFT");
 
@@ -73,14 +72,14 @@ contract MarketPlace {
      * @param nftId : Hashed title of the nft
      */
     function removeNFT(string memory nftId) external OwnNFT {
-        uint256[] storage nfts = userNFTs[msg.sender];
+        string[] storage nfts = userNFTs[msg.sender];
 
         bool found = false;
 
         for (uint256 i = 0; i < nfts.length; i++) {
-            if (nfts[i] == NFT.getTokenId(nftId)) {
+            if (keccak256(abi.encodePacked(nfts[i])) == keccak256(abi.encodePacked(nftId))) {
                 nfts[i] = nfts[nfts.length - 1];
-                nfts.pop(); // Remove 
+                nfts.pop();// Remove
                 found = true;
                 break;
             }
@@ -93,7 +92,7 @@ contract MarketPlace {
      * @dev Retrieve user's NFTs
      * @return list of hashed id 
      */
-    function getMyNFTs() external view returns (uint256[] memory) {
+    function getMyNFTs() external view returns (string[] memory) {
         return userNFTs[msg.sender];
     }
 
