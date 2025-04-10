@@ -1,66 +1,9 @@
-## Foundry
+# Principe
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+Le principe de ce projet est de pouvoir certifier de manière simple les chansons d'un auteur au sein de la blockchain. Pour ce faire,  2 contrats ont été déployés.
 
-Foundry consists of:
+Un contrat [nft](https://polygonscan.com/address/0xA7F2Be4e39Cb23F8a60a4E0C5408CA2570dC405d) qui permet d'enrengistrer les titres de chansons de manière garantie dans la blockchain. Bien que le titre d'une chanson ne suffit pas pour garantir un id fiable (risque de collision, i.e : deux chansons ayant le même titre). Chaque NFT a pour id le titre de la chanson haché en SHA-3 et comme titre le titre non haché. 
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+Un contrat [marketplace](https://polygonscan.com/address/0xBC3911AbCe626aBF7389c8781aC2b3f1D71DD257) qui gère l'ajout et la suppression des NFT d'un utilisateur ayant un wallet en POL. CHaque ajout demande une taxe à hauteur de 0.05 gwei. Si l'utilisateur envoie plus que gwei que la taxe définie, il est alors rembourser de l'écart entre la valeur de la taxe et ce qu'il a envoyé. La suppression d'un NFT ne requiert aucun cout. 
 
-## Documentation
-
-https://book.getfoundry.sh/
-
-## Usage
-
-### Build
-
-```shell
-$ forge build
-```
-
-### Test
-
-```shell
-$ forge test
-```
-
-### Format
-
-```shell
-$ forge fmt
-```
-
-### Gas Snapshots
-
-```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+Le code source de l'application réalisé sous Java est [ici](https://github.com/TakyL/nft_marketplace_java)
