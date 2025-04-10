@@ -30,7 +30,7 @@ contract NFTContract is ERC721Enumerable  {
     }
 
     /**
-     * @dev Hash the title for the id using keccak256
+     * @dev Hash the title for the id using keccak256 (SHA-3)
      * @param input Title's song i.e "Bonjour"
      * @return hashedValue of the song
      */
