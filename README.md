@@ -1,3 +1,4 @@
+Crée par [Thomas LEDUC](https://github.com/TakyL)
 # Principe
 
 Le principe de ce projet est de pouvoir certifier de manière simple les chansons d'un auteur au sein de la blockchain. Pour ce faire,  2 contrats ont été déployés.
